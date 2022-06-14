@@ -156,9 +156,13 @@ def basketFunc(request):
     name = request.POST.get("name")
     price = request.POST.get("price")
     mart = request.POST.get("mart")
-
+    
+    # print(price, type(price))
     price = int(price)
-
+    
+    # print(name, type(name))
+    # print(price, type(price))
+    
     product = {"name" : name, "price" : price}
     productList = []
     gmarketList = [] # 지마켓 최저가 장바구니
@@ -178,7 +182,7 @@ def basketFunc(request):
     else:
         f_product = {"name" : f_df[0],"price":f_df[1]}
     
-    if "prod" in request.session: #session이 생성되어있지 않으면, 즉 첫 번째 상품이 아니라면 productList에 상품 정보 저장하기
+    if "prod" in request.session: #session이 생성되어있을 때
         productList = request.session["prod"]
         gmarketList = request.session["g_prod"]
         fastList = request.session["f_prod"]
@@ -191,7 +195,7 @@ def basketFunc(request):
         
         
         print("세션 유효 시간 : ", request.session.get_expiry_age())
-    else: #session에 shop이 없으면 productList에 상품을 넣고 request.session에 "shop" 이라는 키를 만든다
+    else: #session이 생성되어 있지 않으면
         productList.append(product)
         request.session["prod"] = productList
         gmarketList.append(g_product)
@@ -275,7 +279,7 @@ def craw_fast(item):
     item = parse.quote(item)
     url = "https://browse.gmarket.co.kr/search?keyword="
     url = url+item+"&t=e&tf=e:128935607"
-  
+    #https://browse.gmarket.co.kr/search?keyword=&t=e&tf=e:128935607
     html = urlopen(url)
     
     soup = BeautifulSoup(html,'html.parser')
@@ -304,7 +308,12 @@ def craw_fast(item):
 
 
 def receipt(request):
-
+    # name = request.POST.get("name")
+    # price = request.POST.get("price")
+    # price = int(price)
+    # print(name, type(name))
+    # print(price, type(price))
+    
     products = request.POST.get("products")
     g_products = request.POST.get("g_products")
     f_products = request.POST.get("f_products")
@@ -321,6 +330,20 @@ def receipt(request):
 
               
     return render(request,'receipt.html',{'products' : productss,'g_products' : g_productss,'f_products' : f_productss,'tot':tot,'g_tot':g_tot,'f_tot':f_tot,'g_tot3':g_tot3,'f_tot3':f_tot3})
+
+
+def buyFunc(request):
+    #session = requests.session()
+    if "prod" in request.session: #이전에 줬던 session과 키 동일하게 줘야함
+        prodList = request.session['prod']
+        #print(request.session['prod'])
+        print(prodList)
+        #print(session.cookies.get_dict())
+        del request.session['prod']
+        #print(request.session['prod'])
+        #print(session.cookies.get_dict())
+
+    return render(request, "buy.html")
 
 def parsing(input):
     output = []
